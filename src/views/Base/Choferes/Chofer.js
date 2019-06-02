@@ -256,7 +256,7 @@ class Chofer extends Component {
     const buttons = this.state.driver.map((d) => {
       return (
         <div key="buttons">
-          <Button className="btn-pill" block color="dark" onClick={() => this.handleToggleModal("bloquear")}>Bloquear</Button>
+          <Button className="btn-pill" block color="dark" disabled={this.state.driver[0].status == "Bloqueado"} onClick={() => this.handleToggleModal("bloquear")}>Bloquear</Button>
           <Button className="btn-pill" block color="success" onClick={() => this.handleToggleModal("aprobar") }>Aprobar</Button>
           <Button className="btn-pill" block color="danger" onClick={() => this.handleToggleModal("rechazar") }>Rechazar</Button>
         </div>
