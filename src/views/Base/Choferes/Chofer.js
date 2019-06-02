@@ -17,7 +17,7 @@ class Chofer extends Component {
     this.rejectDriver = this.rejectDriver.bind(this);
     this.approveDriver = this.approveDriver.bind(this);
   }
-  
+
   componentDidMount() {
     fetch('https://correapp-api.herokuapp.com/drivers/' + this.state.id)
       .then(response => response.json())
@@ -32,11 +32,11 @@ class Chofer extends Component {
         }
       });
   }
-  
+
   handleChange(event) {
     this.setState({comment: event.target.value});
   }
-  
+
   blockDriver() {
     fetch('https://correapp-api.herokuapp.com/drivers/' + this.state.id,
       {
@@ -51,7 +51,7 @@ class Chofer extends Component {
       window.location.reload();
     });
   }
-  
+
   approveDriver() {
     fetch('https://correapp-api.herokuapp.com/drivers/' + this.state.id,
         {
@@ -66,7 +66,7 @@ class Chofer extends Component {
       window.location.reload();
     });
   }
-  
+
   rejectDriver() {
     fetch('https://correapp-api.herokuapp.com/drivers/' + this.props.match.params.id,
       {
@@ -81,7 +81,7 @@ class Chofer extends Component {
       window.location.reload();
     });
   }
-  
+
   render() {
     const driver_trips = this.state.driver_trips.map((trip) => {
       return(
@@ -104,35 +104,35 @@ class Chofer extends Component {
         <tbody key="driver">
           <tr key="Nombre">
             <td>Nombre</td>
-            <td>{d.name}</td>
+            <td><b>{d.name}</b></td>
           </tr>
           <tr key="Apellido">
             <td>Apellido</td>
-            <td>{d.lastname}</td>
+            <td><b>{d.lastname}</b></td>
           </tr>
           <tr key="Nombre de usuario">
             <td>Nombre de usuario</td>
-            <td>{d.name}</td>
+            <td><b>{d.name}</b></td>
           </tr>
           <tr key="Email">
             <td>Email</td>
-            <td>{d.email}</td>
+            <td><b>{d.email}</b></td>
           </tr>
           <tr key="DNI">
             <td>DNI</td>
-            <td>{d.dni}</td>
+            <td><b>{d.dni}</b></td>
           </tr>
           <tr key="Telefono">
             <td>Telefono</td>
-            <td>{d.telephone}</td>
+            <td><b>{d.telephone}</b></td>
           </tr>
           <tr key="Celular">
             <td>Celular</td>
-            <td>{d.celphone}</td>
+            <td><b>{d.celphone}</b></td>
           </tr>
           <tr key="Direccion">
             <td>Direccion</td>
-            <td>{d.address}</td>
+            <td><b>{d.address}</b></td>
           </tr>
         </tbody>
       )
@@ -142,23 +142,23 @@ class Chofer extends Component {
         <tbody key="car">
           <tr key="Marca">
             <td>Marca</td>
-            <td>{c.brand}</td>
+            <td><b>{c.brand}</b></td>
           </tr>
           <tr key="Modelo">
             <td>Modelo</td>
-            <td>{c.model}</td>
+            <td><b>{c.model}</b></td>
           </tr>
           <tr key="Color">
             <td>Color</td>
-            <td>{c.carcolour}</td>
+            <td><b>{c.carcolour}</b></td>
           </tr>
           <tr key="Numero de seguro">
             <td>Número de seguro</td>
-            <td>{c.insurancepolicynumber}</td>
+            <td><b>{c.insurancepolicynumber}</b></td>
           </tr>
           <tr key="Numero de registro de conducir">
             <td>Numero de registro de conducir</td>
-            <td>{c.licensenumber}</td>
+            <td><b>{c.licensenumber}</b></td>
           </tr>
         </tbody>
       )
@@ -166,54 +166,43 @@ class Chofer extends Component {
     const profile_pic = this.state.driver.map((d) => {
       return(
         <div key="profile_pic">
-          <img width={400} height={200} mode='fit' src={d.photo_url} />
+          <img fluid src={d.photo_url} />
         </div>
       )
     });
     const license = this.state.driver.map((d) => {
       return (
-        <img key="license" width={400} height={400} mode='fit' src={d.license_photo_url} />
+        <img className="img-fluid" key="license" rounded src={d.license_photo_url} />
       )
     });
     const car_plate = this.state.driver.map((d) => {
       return (
-        <img key="car_plate" width={400} height={400} mode='fit' src={d.car_plate_photo_url} />
+        <img className="img-fluid" key="car_plate" rounded src={d.car_plate_photo_url} />
       )
     });
     const status_and_rating = this.state.driver.map((d) => {
       return (
-        <tbody key="status_and_rating">
-          <tr key="Name">
-            <td><h3>{d.name}</h3></td>
-            <td></td>
-            <td><h3>{d.lastname}</h3></td>
-          </tr>
-          <tr key="Status">
-            <td><b>Status</b></td>
-            <td></td>
-            <td>{d.status}</td>
-          </tr>
-          <tr key="Rating">
-            <td><b>Rating</b></td>
-            <td></td>
-            <td>{d.rating}</td>
-          </tr>
-        </tbody>
+        <div>
+        <Row>
+          <Col><h3>{d.name + " " + d.lastname}</h3><br/></Col>
+        </Row>
+        <Row className="align-bottom">
+          <Col>
+            <p><b>Viajes realizados: </b>{this.state.driver_trips.length}</p>
+            <p><b>Status: </b>{d.status}</p>
+            <p><b>Rating: </b>{d.rating}</p>
+          </Col>
+        </Row>
+        </div>
       )
     });
     const buttons = this.state.driver.map((d) => {
       return (
-        <table key ="buttons">
-          <Col col="6" sm="4" md="2" xl className="mb-3 mb-xl-0">
-            <Button block color="dark" onClick={this.blockDriver}>Bloquear</Button>
-          </Col>
-          <Col col="6" sm="4" md="2" xl className="mb-3 mb-xl-0">
-            <Button block color="success" onClick={this.approveDriver}>Aprobar</Button>
-          </Col>
-          <Col col="6" sm="4" md="2" xl className="mb-3 mb-xl-0">
-            <Button block color="danger" onClick={this.rejectDriver}>Rechazar</Button>
-          </Col>
-        </table>
+        <div>
+          <Button className="btn-pill" block color="dark" onClick={this.blockDriver}>Bloquear</Button>
+          <Button className="btn-pill" block color="success" onClick={this.approveDriver}>Aprobar</Button>
+          <Button className="btn-pill" block color="danger" onClick={this.rejectDriver}>Rechazar</Button>
+        </div>
       )
     });
     const comment = this.state.driver.map((d) => {
@@ -231,20 +220,19 @@ class Chofer extends Component {
     });
     return (
       <div className="animated fadeIn">
-      <h2>Ficha del Chofer</h2>
-        <Row>
-          <Col lg={4}>
+        <h2>Ficha del Chofer</h2>
+        <br/>
+        <Row className="row-eq-height">
+          <Col>
             {profile_pic}
           </Col>
-          <Col lg={2}>
-            <Table>
-              {status_and_rating}
-            </Table>
+          <Col>
+            {status_and_rating}
           </Col>
-          <Col lg={2}>
+          <Col>
             {buttons}
           </Col>
-          <Col lg={4}>
+          <Col>
             {comment}
           </Col>
         </Row>
@@ -252,10 +240,10 @@ class Chofer extends Component {
           <Col lg={6}>
             <Card>
               <CardHeader>
-                <strong>Datos personales</strong>
+                <i className="fa fa-align-justify"></i> Datos personales
               </CardHeader>
               <CardBody>
-                  <Table responsive striped hover>
+                  <Table hover bordered striped responsive size="sm">
                       {driver}
                   </Table>
               </CardBody>
@@ -264,10 +252,10 @@ class Chofer extends Component {
           <Col lg={6}>
             <Card>
               <CardHeader>
-                <strong>Datos del auto</strong>
+                <i className="fa fa-align-justify"></i> Datos del auto
               </CardHeader>
               <CardBody>
-                  <Table responsive striped hover>
+                  <Table hover bordered striped responsive size="sm">
                       {car}
                   </Table>
               </CardBody>
@@ -297,10 +285,10 @@ class Chofer extends Component {
           </Col>
         </Row>
         <CardHeader>
-          <strong>Viajes del chofer</strong>
+          <i className="fa fa-align-justify"></i> Viajes del chofer
         </CardHeader>
         <CardBody>
-          <Table responsive>
+          <Table hover bordered striped responsive size="sm">
             <thead>
             <tr>
               <th>Id</th>
