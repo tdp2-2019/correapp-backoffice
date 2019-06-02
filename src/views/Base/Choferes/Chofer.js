@@ -127,6 +127,38 @@ class Chofer extends Component {
   }
 
   render() {
+    const driver_trips_container = this.state.driver.map((d) => {
+        if (this.state.driver_trips.length == 0) {
+            return(
+                <p>El chofer no realizó ningun viaje</p>
+            );
+        }
+        return(
+            <div>
+            <Table hover bordered striped responsive size="sm">
+              <thead>
+              <tr>
+                <th>Id</th>
+                <th>Fecha de inicio</th>
+                <th>Cliente</th>
+                <th>Origen</th>
+                <th>Destino</th>
+                <th>Precio</th>
+                <th>Duración</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+              </thead>
+              <tbody>
+                {driver_trips}
+              </tbody>
+            </Table>
+            <Pagination>
+              {paginator}
+            </Pagination>
+            </div>
+        );
+    });
     const driver_trips = this.state.driver_trips.map((trip) => {
       return(
         <tr key={trip.id}>
@@ -325,27 +357,7 @@ class Chofer extends Component {
           <i className="fa fa-align-justify"></i> Viajes del chofer
         </CardHeader>
         <CardBody>
-          <Table hover bordered striped responsive size="sm">
-            <thead>
-            <tr>
-              <th>Id</th>
-              <th>Fecha de inicio</th>
-              <th>Cliente</th>
-              <th>Origen</th>
-              <th>Destino</th>
-              <th>Precio</th>
-              <th>Duración</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-              {driver_trips}
-            </tbody>
-          </Table>
-          <Pagination>
-            {paginator}
-          </Pagination>
+            {driver_trips_container}
         </CardBody>
         </Card>
         <Modal isOpen={this.state.show_modal} toggle={() => this.handleToggleModal("") }>
