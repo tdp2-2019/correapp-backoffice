@@ -1,14 +1,18 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { Button, Card, CardBody, CardHeader, Col, Row, Table, FormGroup, Label, Input } from 'reactstrap';
+import Moment from 'moment';
+import { Button, Card, CardBody, CardHeader, Col, Row, Table, FormGroup, Label, Input, Pagination, PaginationItem, PaginationLink } from 'reactstrap';
 
+const items_per_page = 5;
 
 class Chofer extends Component {
   constructor(props) {
     super(props);
     this.state = {
       driver: [],
+      driver_all_trips: [],
       driver_trips: [],
+      driver_trips_pages: [],
       comment: "",
       id: props.match.params.id
     }
@@ -16,6 +20,7 @@ class Chofer extends Component {
     this.blockDriver = this.blockDriver.bind(this);
     this.rejectDriver = this.rejectDriver.bind(this);
     this.approveDriver = this.approveDriver.bind(this);
+    this.onClickPaginatorHandle = this.onClickPaginatorHandle.bind(this);
   }
 
   componentDidMount() {
@@ -28,13 +33,29 @@ class Chofer extends Component {
       .then(response => response.json())
       .then(data => {
         if(typeof data.errorCode == 'undefined') {
-          this.setState({driver_trips: data});
+          var pages =[];
+          var currentPage = [];
+          data.forEach((trip) => {
+            currentPage.push(trip);
+            if (currentPage.length == items_per_page) {
+              pages.push(currentPage);
+              currentPage = [];
+            }
+          });
+          if (data.length % items_per_page !== 0) {
+            pages.push(currentPage);
+          }
+          this.setState({driver_all_trips: data, driver_trips: pages[0]? pages[0] : [], driver_trips_pages: pages? pages : [] });
         }
       });
   }
 
   handleChange(event) {
     this.setState({comment: event.target.value});
+  }
+
+  onClickPaginatorHandle(event) {
+    this.setState({driver_trips: this.state.driver_trips_pages[event.target.value]});
   }
 
   blockDriver() {
@@ -82,21 +103,47 @@ class Chofer extends Component {
     });
   }
 
+  formatearStatus(status) {
+    switch (status) {
+      case "started":
+      case "created":
+        return "En proceso";
+      case "Aborted":
+        return "Cancelado";
+      case "finished":
+        return "Finalizado";
+      default:
+    }
+  }
+
   render() {
     const driver_trips = this.state.driver_trips.map((trip) => {
       return(
         <tr key={trip.id}>
-          <td>{trip.id}</td>
-          <td>{trip.status}</td>
-          <td>{trip.client_id}</td>
-          <td>$ {trip.price}</td>
-          <td>{trip.start_time}</td>
-          <td>
-            <Link to={"/viajes/"+trip.id}>
-              <button className="btn btn-link p-0">Ver Mapa</button>
-            </Link>
-          </td>
+        <td>{trip.id}</td>
+        <td>{Moment(trip.start_time).format('DD-MM-YYYY')}</td>
+        <td>{trip.client}</td>
+        <td>{trip.source.name}</td>
+        <td>{trip.destination.name}</td>
+        <td>${trip.price.toFixed(2)}</td>
+        <td>{Math.floor(trip.duration / 60) + " min."}</td>
+        <td>{this.formatearStatus(trip.status)}</td>
+        <td>
+          <Link to={"/viajes/"+trip.id}>
+            <i class="cui-location-pin h5"></i>
+          </Link>
+          <Link to={"/viajes/"+trip.id}>
+            <i class="cui-cursor h5"></i>
+          </Link>
+        </td>
         </tr>
+      )
+    });
+    const paginator = this.state.driver_trips_pages.map((page, index) => {
+      return (
+          <PaginationItem>
+            <PaginationLink value={index} onClick={this.onClickPaginatorHandle} tag="button">{index + 1}</PaginationLink>
+          </PaginationItem>
       )
     });
     const driver = this.state.driver.map((d) => {
@@ -284,6 +331,7 @@ class Chofer extends Component {
             </Card>
           </Col>
         </Row>
+        <Card>
         <CardHeader>
           <i className="fa fa-align-justify"></i> Viajes del chofer
         </CardHeader>
@@ -292,18 +340,25 @@ class Chofer extends Component {
             <thead>
             <tr>
               <th>Id</th>
+              <th>Fecha de inicio</th>
+              <th>Cliente</th>
+              <th>Origen</th>
+              <th>Destino</th>
+              <th>Precio</th>
+              <th>Duración</th>
               <th>Status</th>
-              <th>Client id</th>
-              <th>Price</th>
-              <th>StartTime</th>
-              <th>Mapa</th>
+              <th>Actions</th>
             </tr>
             </thead>
             <tbody>
               {driver_trips}
             </tbody>
           </Table>
+          <Pagination>
+            {paginator}
+          </Pagination>
         </CardBody>
+        </Card>
       </div>
     )
   }
