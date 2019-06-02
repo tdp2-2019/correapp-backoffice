@@ -145,7 +145,7 @@ class Viajes extends Component {
           <td>{trip.driver_id}</td>
           <td>{trip.client}</td>
           <td>{trip.status}</td>
-          <td>$ {trip.price}</td>
+          <td>$ {Math.round(trip.price * 100) / 100 }</td>
           <td>{trip.start_time}</td>
           <td>
             <Link to={"/viajes/"+trip.id}>
