@@ -130,11 +130,11 @@ class Chofer extends Component {
     const driver_trips_container = this.state.driver.map((d) => {
         if (this.state.driver_trips.length == 0) {
             return(
-                <p>El chofer no realizó ningun viaje</p>
+                <p key="driver_container">El chofer no realizó ningun viaje</p>
             );
         }
         return(
-            <div>
+            <div key="driver_container">
             <Table hover bordered striped responsive size="sm">
               <thead>
               <tr>
@@ -278,7 +278,7 @@ class Chofer extends Component {
         <Row className="align-bottom">
           <Col>
             <p><b>Viajes realizados: </b>{this.state.driver_trips.length}</p>
-            <p><b>Status: </b>{d.status} ({this.state.comment})</p>
+            <p><b>Status: </b>{d.status} {this.state.comment ? " (" + this.state.comment + ")" : null}</p>
             <p><b>Rating: </b>{d.rating}</p>
           </Col>
         </Row>
