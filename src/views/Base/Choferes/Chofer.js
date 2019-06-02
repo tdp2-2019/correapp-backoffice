@@ -1,23 +1,31 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { Button, Card, CardBody, CardHeader, Col, Row, Table, FormGroup, Label, Input } from 'reactstrap';
+import Moment from 'moment';
+import { Button, Card, CardBody, CardHeader, Col, Row, Table, FormGroup, Label, Input, Pagination, PaginationItem, PaginationLink, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 
+const items_per_page = 5;
 
 class Chofer extends Component {
   constructor(props) {
     super(props);
     this.state = {
       driver: [],
+      driver_all_trips: [],
       driver_trips: [],
+      driver_trips_pages: [],
       comment: "",
+      show_modal: false,
+      action_modal: "",
       id: props.match.params.id
     }
     this.handleChange = this.handleChange.bind(this);
     this.blockDriver = this.blockDriver.bind(this);
     this.rejectDriver = this.rejectDriver.bind(this);
     this.approveDriver = this.approveDriver.bind(this);
+    this.onClickPaginatorHandle = this.onClickPaginatorHandle.bind(this);
+    this.handleToggleModal = this.handleToggleModal.bind(this);
   }
-  
+
   componentDidMount() {
     fetch('https://correapp-api.herokuapp.com/drivers/' + this.state.id)
       .then(response => response.json())
@@ -28,15 +36,38 @@ class Chofer extends Component {
       .then(response => response.json())
       .then(data => {
         if(typeof data.errorCode == 'undefined') {
-          this.setState({driver_trips: data});
+          var pages =[];
+          var currentPage = [];
+          data.forEach((trip) => {
+            currentPage.push(trip);
+            if (currentPage.length == items_per_page) {
+              pages.push(currentPage);
+              currentPage = [];
+            }
+          });
+          if (data.length % items_per_page !== 0) {
+            pages.push(currentPage);
+          }
+          this.setState({driver_all_trips: data, driver_trips: pages[0]? pages[0] : [], driver_trips_pages: pages? pages : [] });
         }
       });
   }
-  
+
+  handleToggleModal(action) {
+    this.setState(prevState => ({
+      show_modal: !prevState.show_modal,
+      action_modal: action
+    }));
+  }
+
   handleChange(event) {
     this.setState({comment: event.target.value});
   }
-  
+
+  onClickPaginatorHandle(event) {
+    this.setState({driver_trips: this.state.driver_trips_pages[event.target.value]});
+  }
+
   blockDriver() {
     fetch('https://correapp-api.herokuapp.com/drivers/' + this.state.id,
       {
@@ -47,11 +78,11 @@ class Chofer extends Component {
     )
     .then(response => response.json())
     .then(data => {
-      console.log(data);
+      this.setState({ show_modal: false });
       window.location.reload();
     });
   }
-  
+
   approveDriver() {
     fetch('https://correapp-api.herokuapp.com/drivers/' + this.state.id,
         {
@@ -66,7 +97,7 @@ class Chofer extends Component {
       window.location.reload();
     });
   }
-  
+
   rejectDriver() {
     fetch('https://correapp-api.herokuapp.com/drivers/' + this.props.match.params.id,
       {
@@ -81,22 +112,48 @@ class Chofer extends Component {
       window.location.reload();
     });
   }
-  
+
+  formatearStatus(status) {
+    switch (status) {
+      case "started":
+      case "created":
+        return "En proceso";
+      case "Aborted":
+        return "Cancelado";
+      case "finished":
+        return "Finalizado";
+      default:
+    }
+  }
+
   render() {
     const driver_trips = this.state.driver_trips.map((trip) => {
       return(
         <tr key={trip.id}>
-          <td>{trip.id}</td>
-          <td>{trip.status}</td>
-          <td>{trip.client_id}</td>
-          <td>$ {trip.price}</td>
-          <td>{trip.start_time}</td>
-          <td>
-            <Link to={"/viajes/"+trip.id}>
-              <button className="btn btn-link p-0">Ver Mapa</button>
-            </Link>
-          </td>
+        <td>{trip.id}</td>
+        <td>{Moment(trip.start_time).format('DD-MM-YYYY')}</td>
+        <td>{trip.client}</td>
+        <td>{trip.source.name}</td>
+        <td>{trip.destination.name}</td>
+        <td>${trip.price.toFixed(2)}</td>
+        <td>{Math.floor(trip.duration / 60) + " min."}</td>
+        <td>{this.formatearStatus(trip.status)}</td>
+        <td>
+          <Link to={"/viajes/"+trip.id}>
+            <i className="cui-location-pin h5"></i>
+          </Link>
+          <Link to={"/viajes/"+trip.id}>
+            <i className="cui-cursor h5"></i>
+          </Link>
+        </td>
         </tr>
+      )
+    });
+    const paginator = this.state.driver_trips_pages.map((page, index) => {
+      return (
+          <PaginationItem key="paginador">
+            <PaginationLink value={index} onClick={this.onClickPaginatorHandle} tag="button">{index + 1}</PaginationLink>
+          </PaginationItem>
       )
     });
     const driver = this.state.driver.map((d) => {
@@ -104,35 +161,35 @@ class Chofer extends Component {
         <tbody key="driver">
           <tr key="Nombre">
             <td>Nombre</td>
-            <td>{d.name}</td>
+            <td><b>{d.name}</b></td>
           </tr>
           <tr key="Apellido">
             <td>Apellido</td>
-            <td>{d.lastname}</td>
+            <td><b>{d.lastname}</b></td>
           </tr>
           <tr key="Nombre de usuario">
             <td>Nombre de usuario</td>
-            <td>{d.name}</td>
+            <td><b>{d.name}</b></td>
           </tr>
           <tr key="Email">
             <td>Email</td>
-            <td>{d.email}</td>
+            <td><b>{d.email}</b></td>
           </tr>
           <tr key="DNI">
             <td>DNI</td>
-            <td>{d.dni}</td>
+            <td><b>{d.dni}</b></td>
           </tr>
           <tr key="Telefono">
             <td>Telefono</td>
-            <td>{d.telephone}</td>
+            <td><b>{d.telephone}</b></td>
           </tr>
           <tr key="Celular">
             <td>Celular</td>
-            <td>{d.celphone}</td>
+            <td><b>{d.celphone}</b></td>
           </tr>
           <tr key="Direccion">
             <td>Direccion</td>
-            <td>{d.address}</td>
+            <td><b>{d.address}</b></td>
           </tr>
         </tbody>
       )
@@ -142,23 +199,23 @@ class Chofer extends Component {
         <tbody key="car">
           <tr key="Marca">
             <td>Marca</td>
-            <td>{c.brand}</td>
+            <td><b>{c.brand}</b></td>
           </tr>
           <tr key="Modelo">
             <td>Modelo</td>
-            <td>{c.model}</td>
+            <td><b>{c.model}</b></td>
           </tr>
           <tr key="Color">
             <td>Color</td>
-            <td>{c.carcolour}</td>
+            <td><b>{c.carcolour}</b></td>
           </tr>
           <tr key="Numero de seguro">
             <td>Número de seguro</td>
-            <td>{c.insurancepolicynumber}</td>
+            <td><b>{c.insurancepolicynumber}</b></td>
           </tr>
           <tr key="Numero de registro de conducir">
             <td>Numero de registro de conducir</td>
-            <td>{c.licensenumber}</td>
+            <td><b>{c.licensenumber}</b></td>
           </tr>
         </tbody>
       )
@@ -166,108 +223,83 @@ class Chofer extends Component {
     const profile_pic = this.state.driver.map((d) => {
       return(
         <div key="profile_pic">
-          <img width={400} height={200} mode='fit' src={d.photo_url} />
+          <img className="img-fluid" src={d.photo_url} />
         </div>
       )
     });
     const license = this.state.driver.map((d) => {
       return (
-        <img key="license" width={400} height={400} mode='fit' src={d.license_photo_url} />
+        <img className="img-fluid" key="license" src={d.license_photo_url} />
       )
     });
     const car_plate = this.state.driver.map((d) => {
       return (
-        <img key="car_plate" width={400} height={400} mode='fit' src={d.car_plate_photo_url} />
+        <img className="img-fluid" key="car_plate" src={d.car_plate_photo_url} />
       )
     });
     const status_and_rating = this.state.driver.map((d) => {
       return (
-        <tbody key="status_and_rating">
-          <tr key="Name">
-            <td><h3>{d.name}</h3></td>
-            <td></td>
-            <td><h3>{d.lastname}</h3></td>
-          </tr>
-          <tr key="Status">
-            <td><b>Status</b></td>
-            <td></td>
-            <td>{d.status}</td>
-          </tr>
-          <tr key="Rating">
-            <td><b>Rating</b></td>
-            <td></td>
-            <td>{d.rating}</td>
-          </tr>
-        </tbody>
+        <div key="driver">
+        <Row>
+          <Col><h3>{d.name + " " + d.lastname}</h3><br/></Col>
+        </Row>
+        <Row className="align-bottom">
+          <Col>
+            <p><b>Viajes realizados: </b>{this.state.driver_trips.length}</p>
+            <p><b>Status: </b>{d.status} ({this.state.comment})</p>
+            <p><b>Rating: </b>{d.rating}</p>
+          </Col>
+        </Row>
+        </div>
       )
     });
     const buttons = this.state.driver.map((d) => {
       return (
-        <table key ="buttons">
-          <Col col="6" sm="4" md="2" xl className="mb-3 mb-xl-0">
-            <Button block color="dark" onClick={this.blockDriver}>Bloquear</Button>
-          </Col>
-          <Col col="6" sm="4" md="2" xl className="mb-3 mb-xl-0">
-            <Button block color="success" onClick={this.approveDriver}>Aprobar</Button>
-          </Col>
-          <Col col="6" sm="4" md="2" xl className="mb-3 mb-xl-0">
-            <Button block color="danger" onClick={this.rejectDriver}>Rechazar</Button>
-          </Col>
-        </table>
+        <div key="buttons">
+          <Button className="btn-pill" block color="dark" onClick={() => this.handleToggleModal("bloquear")}>Bloquear</Button>
+          <Button className="btn-pill" block color="success" onClick={() => this.handleToggleModal("aprobar") }>Aprobar</Button>
+          <Button className="btn-pill" block color="danger" onClick={() => this.handleToggleModal("rechazar") }>Rechazar</Button>
+        </div>
       )
     });
     const comment = this.state.driver.map((d) => {
       return (
-      <FormGroup row key="comment">
-      <Col md="3">
-      <Label htmlFor="textarea-input"><h5>Comentario</h5></Label>
-      </Col>
-      <Col xs="3" md="9">
-      <Input type="textarea" name="textarea-input" id="textarea-input" rows="9"
-        placeholder="Escriba el análisis del bloqueo/aprobación/rechazo" value={this.state.comment} onChange={this.handleChange} />
-      </Col>
+      <FormGroup key="comment">
+        <Label htmlFor="textarea-input"><h5>¿Por qué vas a {this.state.action_modal} a este chofer?</h5></Label>
+        <Input type="textarea" name="textarea-input" id="textarea-input" rows="9" placeholder="Ingresar comentario" onChange={this.handleChange} />
       </FormGroup>
     )
     });
     return (
       <div className="animated fadeIn">
-      <h2>Ficha del Chofer</h2>
-        <Row>
-          <Col lg={4}>
-            {profile_pic}
-          </Col>
-          <Col lg={2}>
-            <Table>
-              {status_and_rating}
-            </Table>
-          </Col>
-          <Col lg={2}>
-            {buttons}
-          </Col>
-          <Col lg={4}>
-            {comment}
-          </Col>
+        <h2>Ficha del Chofer</h2>
+        <br/>
+        <Row className="row-eq-height">
+          <Col>{profile_pic}</Col>
+          <Col>{status_and_rating}</Col>
+          <Col>{buttons}</Col>
         </Row>
+        <br/>
         <Row>
-          <Col lg={6}>
+          <Col>
             <Card>
               <CardHeader>
-                <strong>Datos personales</strong>
+                <i className="fa fa-align-justify"></i> Datos personales
               </CardHeader>
               <CardBody>
-                  <Table responsive striped hover>
+                  <Table hover bordered striped responsive size="sm">
                       {driver}
                   </Table>
               </CardBody>
             </Card>
           </Col>
-          <Col lg={6}>
+          <Col>
             <Card>
               <CardHeader>
-                <strong>Datos del auto</strong>
+                <i className="fa fa-align-justify"></i> Datos del auto
               </CardHeader>
               <CardBody>
-                  <Table responsive striped hover>
+                  <Table hover bordered striped responsive size="sm">
                       {car}
                   </Table>
               </CardBody>
@@ -275,47 +307,57 @@ class Chofer extends Component {
           </Col>
         </Row>
         <Row>
-          <Col lg={6}>
+          <Col>
             <Card>
-              <CardHeader>
-                <strong>Licencia</strong>
-              </CardHeader>
-              <CardBody>
-                {license}
-              </CardBody>
+              <CardHeader><strong>Licencia</strong></CardHeader>
+              <CardBody>{license}</CardBody>
             </Card>
           </Col>
-          <Col lg={6}>
+          <Col>
             <Card>
-              <CardHeader>
-                <strong>Patente</strong>
-              </CardHeader>
-              <CardBody>
-                {car_plate}
-              </CardBody>
+              <CardHeader><strong>Patente</strong></CardHeader>
+              <CardBody>{car_plate}</CardBody>
             </Card>
           </Col>
         </Row>
+        <Card>
         <CardHeader>
-          <strong>Viajes del chofer</strong>
+          <i className="fa fa-align-justify"></i> Viajes del chofer
         </CardHeader>
         <CardBody>
-          <Table responsive>
+          <Table hover bordered striped responsive size="sm">
             <thead>
             <tr>
               <th>Id</th>
+              <th>Fecha de inicio</th>
+              <th>Cliente</th>
+              <th>Origen</th>
+              <th>Destino</th>
+              <th>Precio</th>
+              <th>Duración</th>
               <th>Status</th>
-              <th>Client id</th>
-              <th>Price</th>
-              <th>StartTime</th>
-              <th>Mapa</th>
+              <th>Actions</th>
             </tr>
             </thead>
             <tbody>
               {driver_trips}
             </tbody>
           </Table>
+          <Pagination>
+            {paginator}
+          </Pagination>
         </CardBody>
+        </Card>
+        <Modal isOpen={this.state.show_modal} toggle={() => this.handleToggleModal("") }>
+          <ModalBody>{comment}</ModalBody>
+          <ModalFooter>
+            { this.state.action_modal == "bloquear" ? <Button color="dark" onClick={this.blockDriver}>Bloquear</Button> : null }
+            { this.state.action_modal == "aprobar" ? <Button color="success" onClick={this.approveDriver}>Aprobar</Button> : null }
+            { this.state.action_modal == "rechazar" ? <Button color="danger" onClick={this.rejectDriver}>Rechazar</Button> : null }
+            {' '}
+            <Button color="secondary" onClick={() => this.handleToggleModal("")}>Cerrar</Button>
+          </ModalFooter>
+        </Modal>
       </div>
     )
   }
