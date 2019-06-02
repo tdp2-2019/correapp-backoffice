@@ -15,6 +15,7 @@ class Choferes extends Component {
       apellido_filter: "",
       patente_filter: "",
       email_filter: "",
+      status_filter: "",
       queryparams: ""
     }
     this.fetchDrivers = this.fetchDrivers.bind(this);
@@ -24,8 +25,9 @@ class Choferes extends Component {
     this.handleApellidoChange = this.handleApellidoChange.bind(this);
     this.handlePatenteChange = this.handlePatenteChange.bind(this);
     this.handleEmailChange = this.handleEmailChange.bind(this);
+    this.handleStatusChange = this.handleStatusChange.bind(this);
   }
-  
+
   componentDidMount() {
     fetch('https://correapp-api.herokuapp.com/drivers')
       .then(response => response.json())
@@ -45,7 +47,7 @@ class Choferes extends Component {
         this.setState({ all_drivers: data, drivers: pages[0]? pages[0] : [], pages: pages? pages : [] });
       });
   }
-  
+
   fetchDrivers() {
     const request = require('request');
     var driv;
@@ -54,11 +56,16 @@ class Choferes extends Component {
     });
     this.setState({drivers : driv});
   }
-  
+
   onClickHandle(event) {
     this.setState({drivers: this.state.pages[event.target.value]});
   }
-  
+
+  handleStatusChange(event) {
+    const value = event.target.value;
+    this.setState({status_filter : value});
+  }
+
   filter(event) {
     var selected_drivers = [];
     this.state.all_drivers.forEach((driver) => {
@@ -82,6 +89,11 @@ class Choferes extends Component {
           return;
         }
       }
+      if (this.state.status_filter !== "") {
+        if(!driver.status.toLowerCase().includes(this.state.status_filter.toLowerCase())) {
+          return;
+        }
+      }
       selected_drivers.push(driver);
     });
     var pages = [];
@@ -98,27 +110,27 @@ class Choferes extends Component {
     }
     this.setState({drivers: pages[0]? pages[0] : [], pages: pages? pages :[]});
   }
-  
+
   handleNombreChange(event) {
     const value = event.target.value;
     this.setState({nombre_filter : value});
   }
-  
+
   handleApellidoChange(event) {
     const value = event.target.value;
     this.setState({apellido_filter : value});
   }
-  
+
   handlePatenteChange(event) {
     const value = event.target.value;
     this.setState({patente_filter : value});
   }
-  
+
   handleEmailChange(event) {
     const value = event.target.value;
     this.setState({email_filter : value});
   }
-  
+
   render() {
     const filter =
     <Card>
@@ -145,6 +157,16 @@ class Choferes extends Component {
               <Input type="text" id="Patente" placeholder="Ej: OSO300" size="sm" value={this.state.email_filter} onChange={this.handleEmailChange} />
             </Col>
             <Col className="pr-1">
+              <Label size="sm" className="mb-0" htmlFor="status_filter">Status:</Label>
+              <Input type="select" id="status_filter" placeholder="Ej: En proceso" size="sm" value={this.state.status_filter} onChange={this.handleStatusChange}>
+                <option hidden value="">Ej: Confirmado</option>
+                <option value="">Todos</option>
+                <option value="Aprobado">Aprobado</option>
+                <option value="No confirmado">No confirmado</option>
+                <option value="Bloqueado">Bloqueado</option>
+              </Input>
+            </Col>
+            <Col>
               <Label size="sm" className="mb-0 invisible">Buscar</Label>
               <Button block size="sm" color="dark" onClick={this.filter}>Buscar</Button>
             </Col>
@@ -172,6 +194,7 @@ class Choferes extends Component {
           <td class="align-middle">{driver.lastname}</td>
           <td class="align-middle">{driver.carlicenseplate}</td>
           <td class="align-middle">{driver.email}</td>
+          <td  class="align-middle">{driver.status}</td>
           <td class="align-middle">
             <Link to={"/choferes/"+driver.id}>
               <i class="cui-cursor h5"></i>
@@ -201,6 +224,7 @@ class Choferes extends Component {
                     <th>Apellido</th>
                     <th>Patente</th>
                     <th>Email</th>
+                    <th>Status</th>
                     <th>Actions</th>
                   </tr>
                   </thead>
