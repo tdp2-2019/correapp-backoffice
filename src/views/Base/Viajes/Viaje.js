@@ -22,6 +22,7 @@ class Viaje extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      intervalId : null,
       trip : [],
       id : props.match.params.id,
       center: {
@@ -30,9 +31,20 @@ class Viaje extends Component {
       },
       zoom: 11
     }
+
+    this.updateTrip = this.updateTrip.bind(this);
   }
 
   componentDidMount() {
+    var intervalId = setInterval(this.updateTrip, 3000);
+    this.setState({intervalId: intervalId});
+  }
+
+  componentWillUnmount() {
+      clearInterval(this.state.intervalId);
+  }
+
+  updateTrip() {
     fetch('https://correapp-api.herokuapp.com/trips/' + this.state.id)
       .then(response => response.json())
       .then(data =>{
@@ -91,7 +103,8 @@ class Viaje extends Component {
 
     const trip_card = this.state.trip.map((t) => {
         return(
-          <tbody key="trip">
+          <Table key="Trip" hover bordered striped responsive size="sm">
+          <tbody>
             <tr key="Origen">
               <td>Origen</td>
               <td><b>{t.source.name}</b></td>
@@ -132,17 +145,19 @@ class Viaje extends Component {
               <td><b>{t.pets[2].key2 + " (" + t.pets[2].key2 + ")"}</b></td>
             </tr> : null }
           </tbody>
+          </Table>
         )
     });
 
     const trip_rating_client = this.state.trip.map((t) => {
         if (t.user_rating == null) {
             return(
-              <p>No hay información</p>
+              <p key="Rating Client">No hay información</p>
             );
         }
         return(
-            <tbody key="Rating Client">
+            <Table key="Rating Client" hover bordered striped responsive size="sm">
+            <tbody>
               <tr key="Rating">
                 <td>Rating</td>
                 <td><b>{t.user_rating.rating}</b></td>
@@ -152,17 +167,19 @@ class Viaje extends Component {
                 <td><b>{t.user_rating.comment}</b></td>
               </tr>
             </tbody>
+            </Table>
         )
     });
 
     const trip_rating_driver = this.state.trip.map((t) => {
         if (t.driver_rating == null) {
             return(
-              <p>No hay información</p>
+              <p key="Rating Driver">No hay información</p>
             );
         }
         return(
-            <tbody key="Rating Driver">
+            <Table key="Rating Driver" hover bordered striped responsive size="sm">
+            <tbody>
               <tr key="Rating">
                 <td>Rating</td>
                 <td><b>{t.driver_rating.rating}</b></td>
@@ -172,6 +189,7 @@ class Viaje extends Component {
                 <td><b>{t.driver_rating.comment}</b></td>
               </tr>
             </tbody>
+            </Table>
         )
     });
 
@@ -197,9 +215,7 @@ class Viaje extends Component {
                 <i className="fa fa-align-justify"></i> Datos del viaje
               </CardHeader>
               <CardBody>
-                  <Table hover bordered striped responsive size="sm">
-                    {trip_card}
-                  </Table>
+                {trip_card}
               </CardBody>
             </Card>
           </Col>
@@ -209,9 +225,7 @@ class Viaje extends Component {
               <i className="fa fa-align-justify"></i> Rating del cliente
             </CardHeader>
             <CardBody>
-                <Table hover bordered striped responsive size="sm">
-                  {trip_rating_client}
-                </Table>
+              {trip_rating_client}
             </CardBody>
           </Card>
           <Card>
@@ -219,9 +233,7 @@ class Viaje extends Component {
               <i className="fa fa-align-justify"></i> Rating del chofer
             </CardHeader>
             <CardBody>
-                <Table hover bordered striped responsive size="sm">
-                  {trip_rating_driver}
-                </Table>
+              {trip_rating_driver}
             </CardBody>
           </Card>
           </Col>
