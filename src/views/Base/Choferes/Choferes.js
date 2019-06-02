@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Badge, Card, CardBody, CardHeader, Col, Pagination, PaginationItem, PaginationLink, Row, Table, Form, FormGroup, Label, Input } from 'reactstrap';
 
-const items_per_page = 2;
+const items_per_page = 5;
 
 class Choferes extends Component {
   constructor(props) {
@@ -122,83 +122,86 @@ class Choferes extends Component {
   render() {
     const filter =
     <Card>
-    <CardHeader>
-    <i className="fa fa-align-justify"></i> Filtros
-    </CardHeader>
-    <CardBody>
-    <Form action="" method="" inline>
-    <FormGroup className="pr-1">
-    <Label htmlFor="Nombre" className="pr-1">Nombre</Label>
-    <Input type="text" id="nombre_filter" placeholder="Juan" value={this.state.nombre_filter} onChange={this.handleNombreChange}/>
-    </FormGroup>
-    <FormGroup className="pr-1">
-    <Label htmlFor="Apellido" className="pr-1">Apellido</Label>
-    <Input type="text" id="Apellido" placeholder="Perez" value={this.state.apellido_filter} onChange={this.handleApellidoChange} />
-    </FormGroup>
-    <FormGroup className="pr-1">
-    <Label htmlFor="Patente" className="pr-1">Patente</Label>
-    <Input type="text" id="Patente" placeholder="OSO300" value={this.state.patente_filter} onChange={this.handlePatenteChange} />
-    </FormGroup>
-    <FormGroup className="pr-1">
-    <Label htmlFor="Email" className="pr-1">Email</Label>
-    <Input type="text" id="Email" placeholder="taller@fiuba.com" value={this.state.email_filter} onChange={this.handleEmailChange} />
-    </FormGroup>
-    <Col col="6" sm="4" md="2" xl className="mb-3 mb-xl-0">
-    <Button block color="dark" onClick={this.filter}>Buscar</Button>
-    </Col>
-    </Form>
-    </CardBody>
+      <CardHeader>
+        <i className="fa fa-align-justify"></i> Filtros
+      </CardHeader>
+      <CardBody>
+        <Form action="" method="">
+          <Row className="no-gutters">
+            <Col className="pr-1">
+              <Label size="sm" className="mb-0" htmlFor="nombre_filter">Nombre:</Label>
+              <Input type="text" id="nombre_filter" placeholder="Ej: Juan" size="sm" value={this.state.nombre_filter} onChange={this.handleNombreChange}/>
+            </Col>
+            <Col className="pr-1">
+              <Label size="sm" className="mb-0" htmlFor="Apellido">Apellido:</Label>
+              <Input type="text" id="Apellido" placeholder="Ej: Perez" size="sm" value={this.state.apellido_filter} onChange={this.handleApellidoChange} />
+            </Col>
+            <Col className="pr-1">
+              <Label size="sm" className="mb-0" htmlFor="Patente">Patente:</Label>
+              <Input type="text" id="Patente" placeholder="Ej: OSO300" size="sm" value={this.state.patente_filter} onChange={this.handlePatenteChange} />
+            </Col>
+            <Col className="pr-1">
+              <Label size="sm" className="mb-0" htmlFor="Email">Email:</Label>
+              <Input type="text" id="Patente" placeholder="Ej: OSO300" size="sm" value={this.state.email_filter} onChange={this.handleEmailChange} />
+            </Col>
+            <Col className="pr-1">
+              <Label size="sm" className="mb-0 invisible">Buscar</Label>
+              <Button block size="sm" color="dark" onClick={this.filter}>Buscar</Button>
+            </Col>
+          </Row>
+        </Form>
+      </CardBody>
     </Card>
     const paginator = this.state.pages.map((page, index) => {
       return (
           <PaginationItem key={index}>
-            <PaginationLink value={index} onClick={this.onClickHandle} tag="button">{index}</PaginationLink>
+            <PaginationLink value={index} onClick={this.onClickHandle} tag="button">{index + 1}</PaginationLink>
           </PaginationItem>
       )
     });
     const drivers = this.state.drivers.map((driver) => {
       return (
         <tr key={driver.id}>
-          <td>
+          <td class="align-middle">{driver.id}</td>
+          <td class="text-center align-middle">
             <div className="avatar">
               <img className="img-avatar" src={driver.photo_url} />
             </div>
           </td>
-          <td>
-          <Link to={"/choferes/"+driver.id}>
-          <button className="btn btn-link p-0">{driver.id}</button>
-          </Link>
-          </td>
-          <td>{driver.name}</td>
-          <td>{driver.lastname}</td>
-          <td>
-            {driver.carlicenseplate}
-          </td>
-          <td>
-            {driver.email}
+          <td class="align-middle">{driver.name}</td>
+          <td class="align-middle">{driver.lastname}</td>
+          <td class="align-middle">{driver.carlicenseplate}</td>
+          <td class="align-middle">{driver.email}</td>
+          <td class="align-middle">
+            <Link to={"/choferes/"+driver.id}>
+              <i class="cui-cursor h5"></i>
+            </Link>
           </td>
         </tr>
               );
     });
     return (
       <div className="animated fadeIn">
-      {filter}
+        <h1>Choferes</h1>
+        <br/>
+        {filter}
         <Row>
           <Col xs="20" lg="12">
             <Card>
               <CardHeader>
-                <i className="fa fa-align-justify"></i> Lista de choferes
+                <i className="fa fa-align-justify"></i> Listado de choferes
               </CardHeader>
               <CardBody>
-                <Table responsive>
+                <Table hover bordered striped responsive size="sm">
                   <thead>
                   <tr>
-                    <th>Foto</th>
                     <th>Id</th>
+                    <th>Foto</th>
                     <th>Nombre</th>
                     <th>Apellido</th>
                     <th>Patente</th>
                     <th>Email</th>
+                    <th>Actions</th>
                   </tr>
                   </thead>
                   <tbody>
