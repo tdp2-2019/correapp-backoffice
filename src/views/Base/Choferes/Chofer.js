@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import Moment from 'moment';
-import { Button, Card, CardBody, CardHeader, Col, Row, Table, FormGroup, Label, Input, Pagination, PaginationItem, PaginationLink } from 'reactstrap';
+import { Button, Card, CardBody, CardHeader, Col, Row, Table, FormGroup, Label, Input, Pagination, PaginationItem, PaginationLink, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 
 const items_per_page = 5;
 
@@ -14,6 +14,8 @@ class Chofer extends Component {
       driver_trips: [],
       driver_trips_pages: [],
       comment: "",
+      show_modal: false,
+      action_modal: "",
       id: props.match.params.id
     }
     this.handleChange = this.handleChange.bind(this);
@@ -21,6 +23,7 @@ class Chofer extends Component {
     this.rejectDriver = this.rejectDriver.bind(this);
     this.approveDriver = this.approveDriver.bind(this);
     this.onClickPaginatorHandle = this.onClickPaginatorHandle.bind(this);
+    this.handleToggleModal = this.handleToggleModal.bind(this);
   }
 
   componentDidMount() {
@@ -50,6 +53,13 @@ class Chofer extends Component {
       });
   }
 
+  handleToggleModal(action) {
+    this.setState(prevState => ({
+      show_modal: !prevState.show_modal,
+      action_modal: action
+    }));
+  }
+
   handleChange(event) {
     this.setState({comment: event.target.value});
   }
@@ -68,7 +78,7 @@ class Chofer extends Component {
     )
     .then(response => response.json())
     .then(data => {
-      console.log(data);
+      this.setState({ show_modal: false });
       window.location.reload();
     });
   }
@@ -130,10 +140,10 @@ class Chofer extends Component {
         <td>{this.formatearStatus(trip.status)}</td>
         <td>
           <Link to={"/viajes/"+trip.id}>
-            <i class="cui-location-pin h5"></i>
+            <i className="cui-location-pin h5"></i>
           </Link>
           <Link to={"/viajes/"+trip.id}>
-            <i class="cui-cursor h5"></i>
+            <i className="cui-cursor h5"></i>
           </Link>
         </td>
         </tr>
@@ -141,7 +151,7 @@ class Chofer extends Component {
     });
     const paginator = this.state.driver_trips_pages.map((page, index) => {
       return (
-          <PaginationItem>
+          <PaginationItem key="paginador">
             <PaginationLink value={index} onClick={this.onClickPaginatorHandle} tag="button">{index + 1}</PaginationLink>
           </PaginationItem>
       )
@@ -213,30 +223,30 @@ class Chofer extends Component {
     const profile_pic = this.state.driver.map((d) => {
       return(
         <div key="profile_pic">
-          <img fluid src={d.photo_url} />
+          <img className="img-fluid" src={d.photo_url} />
         </div>
       )
     });
     const license = this.state.driver.map((d) => {
       return (
-        <img className="img-fluid" key="license" rounded src={d.license_photo_url} />
+        <img className="img-fluid" key="license" src={d.license_photo_url} />
       )
     });
     const car_plate = this.state.driver.map((d) => {
       return (
-        <img className="img-fluid" key="car_plate" rounded src={d.car_plate_photo_url} />
+        <img className="img-fluid" key="car_plate" src={d.car_plate_photo_url} />
       )
     });
     const status_and_rating = this.state.driver.map((d) => {
       return (
-        <div>
+        <div key="driver">
         <Row>
           <Col><h3>{d.name + " " + d.lastname}</h3><br/></Col>
         </Row>
         <Row className="align-bottom">
           <Col>
             <p><b>Viajes realizados: </b>{this.state.driver_trips.length}</p>
-            <p><b>Status: </b>{d.status}</p>
+            <p><b>Status: </b>{d.status} ({this.state.comment})</p>
             <p><b>Rating: </b>{d.rating}</p>
           </Col>
         </Row>
@@ -245,23 +255,18 @@ class Chofer extends Component {
     });
     const buttons = this.state.driver.map((d) => {
       return (
-        <div>
-          <Button className="btn-pill" block color="dark" onClick={this.blockDriver}>Bloquear</Button>
-          <Button className="btn-pill" block color="success" onClick={this.approveDriver}>Aprobar</Button>
-          <Button className="btn-pill" block color="danger" onClick={this.rejectDriver}>Rechazar</Button>
+        <div key="buttons">
+          <Button className="btn-pill" block color="dark" onClick={() => this.handleToggleModal("bloquear")}>Bloquear</Button>
+          <Button className="btn-pill" block color="success" onClick={() => this.handleToggleModal("aprobar") }>Aprobar</Button>
+          <Button className="btn-pill" block color="danger" onClick={() => this.handleToggleModal("rechazar") }>Rechazar</Button>
         </div>
       )
     });
     const comment = this.state.driver.map((d) => {
       return (
-      <FormGroup row key="comment">
-      <Col md="3">
-      <Label htmlFor="textarea-input"><h5>Comentario</h5></Label>
-      </Col>
-      <Col xs="3" md="9">
-      <Input type="textarea" name="textarea-input" id="textarea-input" rows="9"
-        placeholder="Escriba el análisis del bloqueo/aprobación/rechazo" value={this.state.comment} onChange={this.handleChange} />
-      </Col>
+      <FormGroup key="comment">
+        <Label htmlFor="textarea-input"><h5>¿Por qué vas a {this.state.action_modal} a este chofer?</h5></Label>
+        <Input type="textarea" name="textarea-input" id="textarea-input" rows="9" placeholder="Ingresar comentario" onChange={this.handleChange} />
       </FormGroup>
     )
     });
@@ -270,21 +275,13 @@ class Chofer extends Component {
         <h2>Ficha del Chofer</h2>
         <br/>
         <Row className="row-eq-height">
-          <Col>
-            {profile_pic}
-          </Col>
-          <Col>
-            {status_and_rating}
-          </Col>
-          <Col>
-            {buttons}
-          </Col>
-          <Col>
-            {comment}
-          </Col>
+          <Col>{profile_pic}</Col>
+          <Col>{status_and_rating}</Col>
+          <Col>{buttons}</Col>
         </Row>
+        <br/>
         <Row>
-          <Col lg={6}>
+          <Col>
             <Card>
               <CardHeader>
                 <i className="fa fa-align-justify"></i> Datos personales
@@ -296,7 +293,7 @@ class Chofer extends Component {
               </CardBody>
             </Card>
           </Col>
-          <Col lg={6}>
+          <Col>
             <Card>
               <CardHeader>
                 <i className="fa fa-align-justify"></i> Datos del auto
@@ -310,24 +307,16 @@ class Chofer extends Component {
           </Col>
         </Row>
         <Row>
-          <Col lg={6}>
+          <Col>
             <Card>
-              <CardHeader>
-                <strong>Licencia</strong>
-              </CardHeader>
-              <CardBody>
-                {license}
-              </CardBody>
+              <CardHeader><strong>Licencia</strong></CardHeader>
+              <CardBody>{license}</CardBody>
             </Card>
           </Col>
-          <Col lg={6}>
+          <Col>
             <Card>
-              <CardHeader>
-                <strong>Patente</strong>
-              </CardHeader>
-              <CardBody>
-                {car_plate}
-              </CardBody>
+              <CardHeader><strong>Patente</strong></CardHeader>
+              <CardBody>{car_plate}</CardBody>
             </Card>
           </Col>
         </Row>
@@ -359,6 +348,16 @@ class Chofer extends Component {
           </Pagination>
         </CardBody>
         </Card>
+        <Modal isOpen={this.state.show_modal} toggle={() => this.handleToggleModal("") }>
+          <ModalBody>{comment}</ModalBody>
+          <ModalFooter>
+            { this.state.action_modal == "bloquear" ? <Button color="dark" onClick={this.blockDriver}>Bloquear</Button> : null }
+            { this.state.action_modal == "aprobar" ? <Button color="success" onClick={this.approveDriver}>Aprobar</Button> : null }
+            { this.state.action_modal == "rechazar" ? <Button color="danger" onClick={this.rejectDriver}>Rechazar</Button> : null }
+            {' '}
+            <Button color="secondary" onClick={() => this.handleToggleModal("")}>Cerrar</Button>
+          </ModalFooter>
+        </Modal>
       </div>
     )
   }
