@@ -36,7 +36,7 @@ class Viaje extends Component {
   }
 
   componentDidMount() {
-    var intervalId = setInterval(this.updateTrip, 3000);
+    var intervalId = setInterval(this.updateTrip, 2000);
     this.setState({intervalId: intervalId});
   }
 
@@ -84,7 +84,7 @@ class Viaje extends Component {
 
     const trip_title = this.state.trip.map((t) => {
       return(
-          <Row className="row-eq-height">
+          <Row key="trip_title" className="row-eq-height">
           <Col className="text-left">
             <p className="mb-0">Chofer:</p>
             <h2>{this.formatearChofer(t.driver_name, t.driver_lastname)}</h2>
