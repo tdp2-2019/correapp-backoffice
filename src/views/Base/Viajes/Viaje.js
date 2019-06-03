@@ -285,7 +285,7 @@ class Viaje extends Component {
           <Col>
           <Card>
             <CardHeader>
-              <i className="fa fa-align-justify"></i> Rating del cliente
+              <i className="fa fa-align-justify"></i> Rating realizado por el chofer
             </CardHeader>
             <CardBody>
               {trip_rating_client}
@@ -295,7 +295,7 @@ class Viaje extends Component {
           <Col>
           <Card>
             <CardHeader>
-              <i className="fa fa-align-justify"></i> Rating del chofer
+              <i className="fa fa-align-justify"></i> Rating realizado por el cliente
             </CardHeader>
             <CardBody>
               {trip_rating_driver}
