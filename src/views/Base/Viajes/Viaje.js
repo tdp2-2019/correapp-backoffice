@@ -24,6 +24,7 @@ class Viaje extends Component {
     this.state = {
       intervalId : null,
       trip : [],
+      driver : [],
       id : props.match.params.id,
       center: {
         lat: -34.592674,
@@ -36,7 +37,7 @@ class Viaje extends Component {
   }
 
   componentDidMount() {
-    var intervalId = setInterval(this.updateTrip, 3000);
+    var intervalId = setInterval(this.updateTrip, 2000);
     this.setState({intervalId: intervalId});
   }
 
@@ -49,6 +50,13 @@ class Viaje extends Component {
       .then(response => response.json())
       .then(data =>{
         this.setState({ trip: [data] });
+        if (data.driver_id != null) {
+            fetch('https://correapp-api.herokuapp.com/drivers/' + data.driver_id)
+            .then(response => response.json())
+            .then(data =>{
+                this.setState({ driver: [data] });
+            });
+        }
       });
   }
 
@@ -84,7 +92,7 @@ class Viaje extends Component {
 
     const trip_title = this.state.trip.map((t) => {
       return(
-          <Row className="row-eq-height">
+          <Row key="trip_title" className="row-eq-height">
           <Col className="text-left">
             <p className="mb-0">Chofer:</p>
             <h2>{this.formatearChofer(t.driver_name, t.driver_lastname)}</h2>
@@ -105,6 +113,10 @@ class Viaje extends Component {
         return(
           <Table key="Trip" hover bordered striped responsive size="sm">
           <tbody>
+            <tr key="Cliente">
+              <td>Cliente</td>
+              <td><b>{t.client}</b></td>
+            </tr>
             <tr key="Origen">
               <td>Origen</td>
               <td><b>{t.source.name}</b></td>
@@ -193,6 +205,45 @@ class Viaje extends Component {
         )
     });
 
+    const trip_chofer = this.state.trip.map((t) => {
+        if (this.state.driver.length == 0) {
+            return(
+              <p key="driver">No hay un chofer asignado</p>
+            );
+        }
+        var driver = this.state.driver[0];
+        return(
+            <Table key="driver" hover bordered striped responsive size="sm">
+            <tbody>
+              <tr key="imagen">
+                <td>Foto de perfil</td>
+                <td class="text-center align-middle">
+                  <div className="avatar">
+                    <img className="img-avatar" src={driver.photo_url} />
+                  </div>
+                </td>
+              </tr>
+              <tr key="nombre">
+                <td>Nombre</td>
+                <td><b>{driver.name}</b></td>
+              </tr>
+              <tr key="rating">
+                <td>Apellido</td>
+                <td><b>{driver.lastname}</b></td>
+              </tr>
+              <tr key="Rating">
+                <td>Rating</td>
+                <td><b>{driver.rating}</b></td>
+              </tr>
+              <tr key="Patente">
+                <td>Patente</td>
+                <td><b>{driver.carlicenseplate}</b></td>
+              </tr>
+            </tbody>
+            </Table>
+        )
+    });
+
     return (
       <div key="trip" className="animated fadeIn">
         <h2>Ficha del Viaje</h2>
@@ -220,6 +271,18 @@ class Viaje extends Component {
             </Card>
           </Col>
           <Col>
+            <Card>
+              <CardHeader>
+                <i className="fa fa-align-justify"></i> Datos del chofer
+              </CardHeader>
+              <CardBody>
+                {trip_chofer}
+              </CardBody>
+            </Card>
+          </Col>
+        </Row>
+        <Row>
+          <Col>
           <Card>
             <CardHeader>
               <i className="fa fa-align-justify"></i> Rating del cliente
@@ -228,6 +291,8 @@ class Viaje extends Component {
               {trip_rating_client}
             </CardBody>
           </Card>
+          </Col>
+          <Col>
           <Card>
             <CardHeader>
               <i className="fa fa-align-justify"></i> Rating del chofer

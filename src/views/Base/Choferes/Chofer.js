@@ -127,6 +127,38 @@ class Chofer extends Component {
   }
 
   render() {
+    const driver_trips_container = this.state.driver.map((d) => {
+        if (this.state.driver_trips.length == 0) {
+            return(
+                <p key="driver_container">El chofer no realizó ningun viaje</p>
+            );
+        }
+        return(
+            <div key="driver_container">
+            <Table hover bordered striped responsive size="sm">
+              <thead>
+              <tr>
+                <th>Id</th>
+                <th>Fecha de inicio</th>
+                <th>Cliente</th>
+                <th>Origen</th>
+                <th>Destino</th>
+                <th>Precio</th>
+                <th>Duración</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+              </thead>
+              <tbody>
+                {driver_trips}
+              </tbody>
+            </Table>
+            <Pagination>
+              {paginator}
+            </Pagination>
+            </div>
+        );
+    });
     const driver_trips = this.state.driver_trips.map((trip) => {
       return(
         <tr key={trip.id}>
@@ -246,7 +278,7 @@ class Chofer extends Component {
         <Row className="align-bottom">
           <Col>
             <p><b>Viajes realizados: </b>{this.state.driver_trips.length}</p>
-            <p><b>Status: </b>{d.status} ({this.state.comment})</p>
+            <p><b>Status: </b>{d.status} {this.state.comment ? " (" + this.state.comment + ")" : null}</p>
             <p><b>Rating: </b>{d.rating}</p>
           </Col>
         </Row>
@@ -256,7 +288,7 @@ class Chofer extends Component {
     const buttons = this.state.driver.map((d) => {
       return (
         <div key="buttons">
-          <Button className="btn-pill" block color="dark" onClick={() => this.handleToggleModal("bloquear")}>Bloquear</Button>
+          <Button className="btn-pill" block color="dark" disabled={this.state.driver[0].status == "Bloqueado"} onClick={() => this.handleToggleModal("bloquear")}>Bloquear</Button>
           <Button className="btn-pill" block color="success" onClick={() => this.handleToggleModal("aprobar") }>Aprobar</Button>
           <Button className="btn-pill" block color="danger" onClick={() => this.handleToggleModal("rechazar") }>Rechazar</Button>
         </div>
@@ -325,27 +357,7 @@ class Chofer extends Component {
           <i className="fa fa-align-justify"></i> Viajes del chofer
         </CardHeader>
         <CardBody>
-          <Table hover bordered striped responsive size="sm">
-            <thead>
-            <tr>
-              <th>Id</th>
-              <th>Fecha de inicio</th>
-              <th>Cliente</th>
-              <th>Origen</th>
-              <th>Destino</th>
-              <th>Precio</th>
-              <th>Duración</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-              {driver_trips}
-            </tbody>
-          </Table>
-          <Pagination>
-            {paginator}
-          </Pagination>
+            {driver_trips_container}
         </CardBody>
         </Card>
         <Modal isOpen={this.state.show_modal} toggle={() => this.handleToggleModal("") }>
