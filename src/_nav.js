@@ -1,10 +1,5 @@
 export default {
-  items: [
-    {
-      name: 'Correapp',
-      url: '/choferes',
-      icon: 'icon-laptop'
-    },
+  items: [    
     {
       name: 'Choferes',
       url: '/choferes',
