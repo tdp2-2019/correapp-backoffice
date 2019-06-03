@@ -34,21 +34,21 @@ class Chofer extends Component {
       });
     fetch('https://correapp-api.herokuapp.com/trips?driver_id=' + this.state.id)
       .then(response => response.json())
-      .then(data => {
-        if(typeof data.errorCode == 'undefined') {
+      .then(data_trips => {
+        if(typeof data_trips.errorCode == 'undefined') {
           var pages =[];
           var currentPage = [];
-          data.forEach((trip) => {
+          data_trips.forEach((trip) => {
             currentPage.push(trip);
             if (currentPage.length == items_per_page) {
               pages.push(currentPage);
               currentPage = [];
             }
           });
-          if (data.length % items_per_page !== 0) {
+          if (data_trips.length % items_per_page !== 0) {
             pages.push(currentPage);
           }
-          this.setState({driver_all_trips: data, driver_trips: pages[0]? pages[0] : [], driver_trips_pages: pages? pages : [] });
+          this.setState({driver_all_trips: data_trips, driver_trips: pages[0]? pages[0] : [], driver_trips_pages: pages? pages : [] });
         }
       });
   }
@@ -127,6 +127,35 @@ class Chofer extends Component {
   }
 
   render() {
+    const driver_trips = this.state.driver_trips.map((trip) => {
+      return(
+        <tr key={trip.id}>
+        <td>{trip.id}</td>
+        <td>{Moment(trip.start_time).format('DD-MM-YYYY')}</td>
+        <td>{trip.client}</td>
+        <td>{trip.source.name}</td>
+        <td>{trip.destination.name}</td>
+        <td>${trip.price.toFixed(2)}</td>
+        <td>{Math.floor(trip.duration / 60) + " min."}</td>
+        <td>{this.formatearStatus(trip.status)}</td>
+        <td>
+          <Link to={"/viajes/"+trip.id}>
+            <i className="cui-location-pin h5"></i>
+          </Link>
+          <Link to={"/viajes/"+trip.id}>
+            <i className="cui-cursor h5"></i>
+          </Link>
+        </td>
+        </tr>
+      )
+    });
+    const paginator = this.state.driver_trips_pages.map((page, index) => {
+      return (
+          <PaginationItem key="paginador">
+            <PaginationLink value={index} onClick={this.onClickPaginatorHandle} tag="button">{index + 1}</PaginationLink>
+          </PaginationItem>
+      )
+    });
     const driver_trips_container = this.state.driver.map((d) => {
         if (this.state.driver_trips.length == 0) {
             return(
@@ -158,35 +187,6 @@ class Chofer extends Component {
             </Pagination>
             </div>
         );
-    });
-    const driver_trips = this.state.driver_trips.map((trip) => {
-      return(
-        <tr key={trip.id}>
-        <td>{trip.id}</td>
-        <td>{Moment(trip.start_time).format('DD-MM-YYYY')}</td>
-        <td>{trip.client}</td>
-        <td>{trip.source.name}</td>
-        <td>{trip.destination.name}</td>
-        <td>${trip.price.toFixed(2)}</td>
-        <td>{Math.floor(trip.duration / 60) + " min."}</td>
-        <td>{this.formatearStatus(trip.status)}</td>
-        <td>
-          <Link to={"/viajes/"+trip.id}>
-            <i className="cui-location-pin h5"></i>
-          </Link>
-          <Link to={"/viajes/"+trip.id}>
-            <i className="cui-cursor h5"></i>
-          </Link>
-        </td>
-        </tr>
-      )
-    });
-    const paginator = this.state.driver_trips_pages.map((page, index) => {
-      return (
-          <PaginationItem key="paginador">
-            <PaginationLink value={index} onClick={this.onClickPaginatorHandle} tag="button">{index + 1}</PaginationLink>
-          </PaginationItem>
-      )
     });
     const driver = this.state.driver.map((d) => {
       return (
