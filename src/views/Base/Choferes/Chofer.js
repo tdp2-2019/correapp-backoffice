@@ -87,7 +87,7 @@ class Chofer extends Component {
     fetch('https://correapp-api.herokuapp.com/drivers/' + this.state.id,
         {
           method: "put",
-          body:JSON.stringify({status: 'Aprobado', comment: this.state.comment}),
+          body:JSON.stringify({status: 'Confirmado', comment: this.state.comment}),
           headers: {"content-type" : "application/json"}
         }
     )
@@ -102,7 +102,7 @@ class Chofer extends Component {
     fetch('https://correapp-api.herokuapp.com/drivers/' + this.props.match.params.id,
       {
         method: "put",
-        body:JSON.stringify({status: 'Rechazado', comment: this.state.comment}),
+        body:JSON.stringify({status: 'No confirmado', comment: this.state.comment}),
         headers: {"content-type" : "application/json"}
       }
     )

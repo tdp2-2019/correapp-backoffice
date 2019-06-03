@@ -161,7 +161,7 @@ class Choferes extends Component {
               <Input type="select" id="status_filter" placeholder="Ej: En proceso" size="sm" value={this.state.status_filter} onChange={this.handleStatusChange}>
                 <option hidden value="">Ej: Confirmado</option>
                 <option value="">Todos</option>
-                <option value="Aprobado">Aprobado</option>
+                <option value="Confirmado">Confirmado</option>
                 <option value="No confirmado">No confirmado</option>
                 <option value="Bloqueado">Bloqueado</option>
               </Input>
