@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { AppAsideToggler, AppHeaderDropdown, AppNavbarBrand, AppSidebarToggler } from '@coreui/react';
 
 const defaultProps = {};
 
@@ -10,6 +11,8 @@ class DefaultHeader extends Component {
 
     return (
       <React.Fragment>
+      <img className="img-fluid custom-brand-logo" src="/assets/img/logo_correapp.png" />
+      <AppSidebarToggler className="d-md-down-none" display="lg" />
       </React.Fragment>
     );
   }
