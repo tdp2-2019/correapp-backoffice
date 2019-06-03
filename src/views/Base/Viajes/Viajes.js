@@ -157,10 +157,12 @@ class Viajes extends Component {
 
   formatearStatus(status) {
     switch (status) {
+      case "created":
+        return "Analizando disponibilidad";
+      case "accepted":
+        return "Esperando al chofer";
       case "started":
         return "En proceso";
-      case "created":
-        return "Esperando chofer";
       case "Aborted":
         return "Cancelado";
       case "finished":
@@ -205,7 +207,8 @@ class Viajes extends Component {
               <Input type="select" id="status_filter" placeholder="Ej: En proceso" size="sm" value={this.state.status_filter} onChange={this.handleStatusChange}>
                 <option hidden value="">Ej: En proceso</option>
                 <option value="">Todos</option>
-                <option value="created">Esperando chofer</option>
+                <option value="created">Analizando disponibilidad</option>
+                <option value="accepted">Esperando al chofer</option>
                 <option value="started">En proceso</option>
                 <option value="finished">Finalizado</option>
                 <option value="Aborted">Cancelado</option>
