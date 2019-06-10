@@ -221,6 +221,7 @@ class Clientes extends Component {
             </Card>
           </Col>
         </Row>
+        <h3 align="center">{this.state.clients.length == 0 ? "No se encontraron resultados para su búsqueda" : ""} </h3>
       </div>
 
     );
