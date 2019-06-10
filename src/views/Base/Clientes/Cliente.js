@@ -209,6 +209,15 @@ class Cliente extends Component {
         </div>
       )
     });
+
+    const profile_pic = this.state.client.map((d) => {
+      return(
+        <div key="profile_pic">
+          <img className="img-fluid" src={d.photo_url} />
+        </div>
+      )
+    });
+
     const buttons = this.state.client.map((d) => {
       return (
         <div key="buttons">
@@ -230,6 +239,7 @@ class Cliente extends Component {
         <h2>Ficha del Cliente</h2>
         <br/>
         <Row className="row-eq-height">
+          <Col>{profile_pic}</Col>
           <Col>{status_and_rating}</Col>
           <Col>{buttons}</Col>
         </Row>

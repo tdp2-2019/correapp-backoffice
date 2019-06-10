@@ -169,6 +169,11 @@ class Clientes extends Component {
       return (
         <tr key={client.id}>
           <td class="align-middle">{client.id}</td>
+          <td class="text-center align-middle">
+            <div className="avatar">
+              <img className="img-avatar" src={client.photo_url} />
+            </div>
+          </td>
           <td class="align-middle">{client.name}</td>
           <td class="align-middle">{client.lastname}</td>
           <td class="align-middle">{client.email}</td>
@@ -197,6 +202,7 @@ class Clientes extends Component {
                   <thead>
                   <tr>
                     <th>Id</th>
+                    <th>Foto</th>
                     <th>Nombre</th>
                     <th>Apellido</th>
                     <th>Email</th>
