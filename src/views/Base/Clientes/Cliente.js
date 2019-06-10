@@ -221,8 +221,19 @@ class Cliente extends Component {
     const buttons = this.state.client.map((d) => {
       return (
         <div key="buttons">
-          <Button className="btn-pill" block color="dark" disabled={this.state.client[0].status == "Bloqueado"} onClick={() => this.handleToggleModal("bloquear")}>Bloquear</Button>
-          <Button className="btn-pill" block color="success" onClick={() => this.handleToggleModal("aprobar") }>Habilitar</Button>
+            <Button className="btn-pill" block color={this.state.client[0].status == "Bloqueado" ? "success" : "dark"}
+
+                    onClick={() =>{
+                        if(this.state.client[0].status == "Bloqueado"){
+                            this.handleToggleModal("aprobar")
+                        } else {
+                            this.handleToggleModal("bloquear")
+                        }
+                    }
+                    }
+
+                    >{this.state.client[0].status == "Habilitado" ? "Bloquear" : "Habilitar"}
+            </Button>
         </div>
       )
     });
